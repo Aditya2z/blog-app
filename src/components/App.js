@@ -1,63 +1,72 @@
-import React from "react";
-import { BrowserRouter, Route } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Route, Routes } from "react-router-dom";
 import Loader from "./loader/Loader";
 import Header from "./Header";
-import Hero from "./Hero";
-import Feed from "./Feed";
+import HomePage from "./Home";
 import LoginPage from "./Login";
+import SignupPage from "./Signup";
+import NoMatch from "./NoMatch";
+import SingleArticle from "./SingleArticle";
+import Profile from "./Profile";
+import { articleUrl } from "../utils/constant";
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      dummyArticles: null,
-      error: null,
-    };
-  }
+function App() {
+  const [articles, setArticles] = useState([]);
+  const [error, setError] = useState(null);
+  const [clickedArticle, setClickedArticle] = useState(null);
 
-  componentDidMount() {
-    fetch(" https://conduitapi.onrender.com/api/articles")
+  useEffect(() => {
+    fetch(articleUrl)
       .then((res) => res.json())
       .then((data) => {
-        this.setState({
-          dummyArticles: data,
-        });
+        setArticles(data.articles);
       })
-      .catch((error) => {
-        this.setState({
-          error,
-        });
+      .catch((err) => {
+        setError(err);
       });
-  }
+  }, []);
 
-  render() {
-    const { error, dummyArticles } = this.state;
-    if (!dummyArticles) {
-      return <Loader />;
-    }
-    const { articles } = dummyArticles;
-    if (error) {
-      return (
-        <div>
-          Error:
-          {error}
-        </div>
-      ); // Render the error message
-    }
+  const handleReadMoreClick = (article) => {
+    setClickedArticle(article);
+  };
+
+  if (error) {
     return (
-      <BrowserRouter>
-        <Route path="/" exact>
-          <Header />
-          <Hero />
-          <Feed articles={articles} />
-        </Route>
-        <Route path="/login" exact>
-          <Header />
-          <LoginPage />
-        </Route>
-      </BrowserRouter>
+      <div>
+        Error:
+        {error.message}
+      </div>
     );
   }
+
+  return (
+    <>
+      <Header />
+      <Routes>
+        <Route
+          path="/"
+          element={
+            articles.length ? (
+              <HomePage
+                articles={articles}
+                onReadMoreClick={handleReadMoreClick}
+              />
+            ) : (
+              <Loader />
+            )
+          }
+        />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route
+          path="/articles/:slug"
+          element={<SingleArticle article={clickedArticle} />}
+        />
+        <Route path="/profiles/:id" element={<Profile />} />
+        <Route path="*" element={<NoMatch />} />
+      </Routes>
+    </>
+  );
 }
 
 export default App;

@@ -15,10 +15,12 @@ module.exports = {
     "linebreak-style": "off",
     "react/jsx-filename-extension": [1, { extensions: [".js", ".jsx"] }],
     quotes: ["error", "double"],
-    // Disable the "react/no-unescaped-entities" rule
     "react/no-unescaped-entities": 0,
-
-    // Disable the "jsx-a11y/label-has-associated-control" rule
     "jsx-a11y/label-has-associated-control": 0,
+    "react/jsx-wrap-multilines": ["error"],
+    "class-methods-use-this": ["error"],
+    "react/jsx-props-no-spreading": ["off"],
+    "react/destructuring-assignment": ["off"],
+    "react/prop-types": ["off"],
   },
 };
