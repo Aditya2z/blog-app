@@ -1,5 +1,6 @@
 /* eslint-disable react/destructuring-assignment */
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 import "../styles/style.css";
 
 class LoginPage extends Component {
@@ -62,7 +63,7 @@ class LoginPage extends Component {
   render() {
     return (
       <div className="login-container">
-        <h1 className="login-heading">Login Page</h1>
+        <h1 className="login-heading">Login</h1>
         <form onSubmit={this.handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email</label>
@@ -99,7 +100,7 @@ class LoginPage extends Component {
 
         <p>
           Don't have an account?
-          <a href="/signup">Signup</a>
+          <Link to="/signup" className="accent"> Sign up</Link>
         </p>
       </div>
     );

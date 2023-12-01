@@ -181,7 +181,7 @@ video {
 /* Variables */
 :root {
   --primary: #5cb85c;
-  --secondary: #191C3C;
+  --secondary: #646788;
   --tertiary: #ff0062;
 }
 
@@ -259,7 +259,16 @@ h3 {
   line-height: 1.5;
 }
 
+.accent {
+  color: var(--primary);
+}
+
+.accent:hover {
+  text-decoration: underline;
+}
+
 /* Buttons */
+/* Read more btn */
 .btn {
   background: none;
   font-size: .75rem;
@@ -267,13 +276,14 @@ h3 {
   padding: 2px;
   border-radius: 0.25rem;
   text-decoration: underline;
-  color: rgba(0, 0, 0, .25);
+  color: rgba(0, 0, 0, .35);
   margin-top: .5rem;
 }
 
 .btn:hover {
   color: black;
 }
+
 /* Tag button */
 .btn-1 {
   text-decoration: none;
@@ -310,9 +320,40 @@ h3 {
   background: var(--tertiary);
 }
 
+/* Follow Button */
+.follow-btn {
+  padding: .5rem;
+  margin-top: 1rem;
+  border-radius: 2px;
+}
+
+.follow-btn:hover {
+  background-color: #464757;
+  color: white;
+  transition: all 150ms ease-in-out;
+}
+
+/* Tag button type 2 */
+.btn-3 {
+  text-decoration: none;
+  background: white;
+  font-size: .75rem;
+  font-weight: 500;
+  padding: 2px 10px;
+  border-radius: 0.25rem;
+  color: rgba(0, 0, 0, .35);
+  margin: .25rem;
+  height: 30px;
+  border-radius: 15px;
+  min-width: 50px;
+  border: 1px solid rgba(0, 0, 0, .35);
+}
+
+
 /* Header Styles */
 header {
-  padding: 1.25rem 5%;
+  padding: .75rem 5%;
+  box-shadow: 1px 1px 5px rgba(92, 182, 92, 0.1);
 }
 
 .brand {
@@ -322,13 +363,21 @@ header {
   cursor: pointer;
 }
 
-.nav-menu a {
+.nav-menu-item {
   text-decoration: none;
-  color: var(--secondary);
+  color: rgba(0, 0, 0, .75);
+  font-weight: 500;
 }
 
-.nav-menu a:hover {
-color: var(--primary);
+.nav-menu-item:hover {
+  color: var(--primary);
+}
+
+.active {
+  border-bottom: 5px solid var(--primary);
+  color: var(--primary);
+  padding: 1.1rem .5rem;
+  transition: all 100ms ease-in-out;
 }
 
 /* Hero Section Styles */
@@ -339,7 +388,7 @@ color: var(--primary);
   color: white;
 }
 
-/* Feed Styles */
+/* HomePage Styles */
 .global-feed {
   border-bottom: 1px solid rgba(0, 0, 0, .25);
   padding: 1rem 0;
@@ -360,6 +409,15 @@ color: var(--primary);
   border-bottom: 1px solid rgba(0, 0, 0, .25);
 }
 
+.article-link * {
+  cursor: pointer;
+}
+
+.article-link {
+  color: inherit;
+  text-decoration: none;
+}
+
 .avatar {
   width: 1.5rem;
   height: 1.5rem;
@@ -377,6 +435,7 @@ color: var(--primary);
 .date {
   font-size: .75rem;
   color: rgba(0, 0, 0, .35);
+  text-transform: capitalize;
 }
 
 .user {
@@ -385,6 +444,15 @@ color: var(--primary);
 
 .author {
   color: var(--primary);
+  text-transform: capitalize;
+}
+
+.article-title h3{
+  text-transform: capitalize;
+}
+
+.article-footer {
+  margin-top: 1rem;
 }
 
 /* Like Styles */
@@ -394,6 +462,8 @@ color: var(--primary);
   padding: 2px 4px;
   cursor: pointer;
   border-radius: 4px;
+  min-width: 30px;
+  font-size: .75rem;
 }
 
 .like:hover {
@@ -446,4 +516,67 @@ label {
   color: #ff0000;
   font-size: 14px;
   text-align: left;
+}
+
+/* Paginaton Styles */
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 30px 0;
+  justify-content: center;
+}
+
+/* Single article page styles */
+.single-article .hero{
+  background-color: var(--secondary);
+}
+
+.single-article h1 {
+  text-align: left;
+  text-transform: capitalize;
+  margin-bottom: 1rem;
+}
+
+.single-article .avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+}
+
+.single-article .avatar img {
+  padding: 2px;
+  border-radius: 50%;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid rgba(0, 0, 0, .25);
+}
+
+.single-article .author,
+.single-article .date {
+  text-transform: capitalize;
+  color: white;
+}
+
+.single-article .article-body,
+.single-article .tag-list {
+  margin: 1% 2%;
+}
+
+.single-article .tag-list {
+  border-bottom: 1px solid rgba(0, 0, 0, .1);
+  padding-bottom: 1rem;
+}
+
+.single-article .article-footer {
+  width: 96%;
+  margin: 0 auto;
+  text-align: center;
+  font-size: .875rem;
+}
+
+/* Profile page styles */
+.profile-avatar img {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  background-color: white;
 }
