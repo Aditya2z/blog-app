@@ -8,7 +8,7 @@ function Header() {
       <Link to="/" className="brand">
         Conduit
       </Link>
-      <ul className="nav-menu flex justify-between flex-24">
+      <ul className="nav-menu flex justify-between flex-20">
         <li>
           <NavLink className="nav-menu-item" activeclassname="active" to="/">
             Home

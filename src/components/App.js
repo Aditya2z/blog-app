@@ -15,8 +15,8 @@ function App() {
   const [error, setError] = useState(null);
   const [clickedArticle, setClickedArticle] = useState(null);
 
-  useEffect(() => {
-    fetch(articleUrl)
+  const fetchArticles = (url) => {
+    fetch(url)
       .then((res) => res.json())
       .then((data) => {
         setArticles(data.articles);
@@ -24,6 +24,10 @@ function App() {
       .catch((err) => {
         setError(err);
       });
+  };
+
+  useEffect(() => {
+    fetchArticles(`${articleUrl}?limit=10`);
   }, []);
 
   const handleReadMoreClick = (article) => {
@@ -50,6 +54,7 @@ function App() {
               <HomePage
                 articles={articles}
                 onReadMoreClick={handleReadMoreClick}
+                fetchArticles={fetchArticles}
               />
             ) : (
               <Loader />

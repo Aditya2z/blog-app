@@ -1,6 +1,7 @@
-/* eslint-disable react/destructuring-assignment */
 import React from "react";
 import { Link } from "react-router-dom";
+import { usersUrl } from "../utils/constant";
+import Loader from "./loader/Loader";
 import "../styles/style.css";
 
 class SignupPage extends React.Component {
@@ -13,6 +14,8 @@ class SignupPage extends React.Component {
       emailError: "",
       passwordError: "",
       usernameError: "",
+      otherError: "",
+      loading: false,
     };
   }
 
@@ -37,7 +40,8 @@ class SignupPage extends React.Component {
     } else if (this.state.password.length < 6) {
       passwordError = "Password must be at least 6 characters long";
     } else if (
-      !/[A-Za-z]/.test(this.state.password) || !/\d/.test(this.state.password)
+      !/[A-Za-z]/.test(this.state.password)
+      || !/\d/.test(this.state.password)
     ) {
       passwordError = "Password must contain at least one letter and one number";
     }
@@ -63,16 +67,79 @@ class SignupPage extends React.Component {
     const isValid = this.validateForm();
 
     if (isValid) {
-      // Perform signup logic here
-      console.log("Signup successful");
+      this.setState({ loading: true });
+
+      const { email, password, username } = this.state;
+
+      fetch(usersUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user: { email, password, username } }),
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          throw response.text(); // Throw the response text directly
+        })
+        .then((data) => {
+          console.log(data);
+        })
+        .catch((errorPromise) => {
+          const errorMessage = "An unexpected error occurred. Please try again later.";
+          errorPromise.then((errorText) => {
+            if (errorText.includes("duplicate key error")) {
+              this.setState({ otherError: "Email is already in use. Please choose a different email." });
+            } else {
+              this.setState({ otherError: errorText || errorMessage });
+            }
+          });
+        })
+        .finally(() => {
+          this.setState({ loading: false });
+        });
     }
   };
 
+  reRenderForm = () => {
+    this.setState({ otherError: null });
+  };
+
   render() {
+    if (this.state.loading) {
+      return <Loader />;
+    }
+
+    if (this.state.otherError) {
+      return (
+        <>
+          <h2>
+            Sign up Error:
+            {this.state.otherError}
+          </h2>
+          <button
+            type="button"
+            tabIndex={0}
+            className="btn-2"
+            onClick={this.reRenderForm}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                this.reRenderForm();
+              }
+            }}
+          >
+            Make Another Account?
+          </button>
+        </>
+      );
+    }
+
     return (
       <div className="signup-container">
         <h1 className="signup-heading">Signup</h1>
-        <form onSubmit={this.handleSubmit}>
+        <form method="post" action="/users" onSubmit={this.handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -122,7 +189,10 @@ class SignupPage extends React.Component {
 
         <p>
           Already have an account?
-          <Link to="/login" className="accent"> Sign in</Link>
+          <Link to="/login" className="accent">
+            {" "}
+            Sign in
+          </Link>
         </p>
       </div>
     );
