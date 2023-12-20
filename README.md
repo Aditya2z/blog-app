@@ -1,6 +1,6 @@
-# Simple Blog App
+# Conduit Blog App
 
-Welcome to the Simple Blog App, a lightweight and feature-rich blogging platform that allows users to create, read, update, and delete articles. This app also includes custom feeds, tag-based filters, and author-based filters for a personalized and seamless blogging experience.
+Welcome to the Conduit Blog App, a lightweight and feature-rich blogging platform that allows users to create, read, update, and delete articles. This app also includes custom feeds, tag-based filters, and author-based filters for a personalized and seamless blogging experience.
 
 ## Features
 
@@ -48,6 +48,6 @@ npm start
 Open your browser and navigate to http://localhost:3000.
 
 ### Acknowledgements
-Special thanks to the open-source community and the developers of the libraries and tools used in this project.
+Special thanks to the open-source community and the developers of the libraries and tools and api used in this project.
 
 Happy blogging! 🚀
