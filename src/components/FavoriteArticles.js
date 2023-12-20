@@ -4,11 +4,12 @@ import Loader from "./loader/Loader";
 import Feedbar from "./Feedbar";
 import ArticleList from "./ArticleList";
 import Pagination from "./Pagination";
+import NoAuthentication from "./NoAuthentication";
 import {
   articleUrl, profileUrl, articleLimit, localStorageKey,
 } from "../utils/constant";
 
-function Profile(props) {
+function FavoriteArticles(props) {
   const [profile, setProfile] = useState(null);
   const [articles, setArticles] = useState([]);
   const [totalPages, setTotalPages] = useState(null);
@@ -64,12 +65,7 @@ function Profile(props) {
   };
 
   useEffect(() => {
-    fetch(`${profileUrl}/${authorid}`, {
-      method: "GET",
-      headers: {
-        Authorization: storageKey,
-      },
-    })
+    fetch(`${profileUrl}/${authorid}`)
       .then((res) => res.json())
       .then((profileData) => {
         setProfile(profileData.profile);
@@ -78,15 +74,19 @@ function Profile(props) {
         setError(err);
       });
     const offsetParam = currentPage > 1 ? `&offset=${(currentPage - 1) * articleLimit}` : "";
-    const authorParam = authorid ? `?author=${authorid}` : "";
+    const favoritedParam = authorid ? `?favorited=${authorid}` : "";
 
-    const fetchParams = authorParam + offsetParam;
+    const fetchParams = favoritedParam + offsetParam;
 
     fetchArticles(fetchParams);
-  }, [currentAuthor, currentPage, currentTag]);
+  }, [currentPage, currentTag, currentAuthor]);
 
   if (!profile) {
     return <Loader />;
+  }
+
+  if (!isLoggedIn) {
+    return <NoAuthentication />;
   }
 
   const {
@@ -122,8 +122,6 @@ function Profile(props) {
             setError(errorText);
           });
         });
-    } else {
-      navigate("/login");
     }
   };
 
@@ -140,17 +138,17 @@ function Profile(props) {
           </div>
           <div className="flex">
             {((isLoggedIn && (user.username !== profile.username)) || !isLoggedIn) && (
-              <button
-                type="button"
-                className="follow-btn"
-                onClick={() => {
-                  followUser(username);
-                }}
-              >
-                {following ? "Unfollow -" : "Follow +"}
-              </button>
+            <button
+              type="button"
+              className="follow-btn"
+              onClick={() => {
+                followUser(username);
+              }}
+            >
+              {following ? "Unfollow -" : "Follow +"}
+            </button>
             )}
-            {isLoggedIn && user.username === profile.username && (
+            {isLoggedIn && (user.username === profile.username) && (
               <Link to="/profiles/settings" className="follow-btn">
                 Profile Settings⚙
               </Link>
@@ -177,4 +175,4 @@ function Profile(props) {
   );
 }
 
-export default Profile;
+export default FavoriteArticles;

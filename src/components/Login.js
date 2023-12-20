@@ -1,110 +1,150 @@
-/* eslint-disable react/destructuring-assignment */
-import React, { Component } from "react";
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { usersUrl } from "../utils/constant";
+import Loader from "./loader/Loader";
 import "../styles/style.css";
 
-class LoginPage extends Component {
-  constructor() {
-    super();
-    this.state = {
-      email: "",
-      password: "",
-      emailError: "",
-      passwordError: "",
-    };
-  }
+function LoginPage(props) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [otherError, setOtherError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  handleInputChange = (event) => {
+  const navigate = useNavigate();
+
+  const handleInputChange = (event) => {
     const { name, value } = event.target;
-    this.setState({ [name]: value });
+    if (name === "email") {
+      setEmail(value);
+    } else if (name === "password") {
+      setPassword(value);
+    }
   };
 
-  validateForm = () => {
-    let emailError = "";
-    let passwordError = "";
-
-    if (!this.state.email) {
-      emailError = "Email field cannot be empty";
-    } else if (!this.state.email.includes("@")) {
-      emailError = "Invalid email address";
+  const validateForm = () => {
+    switch (true) {
+      case !email:
+        setEmailError("Email field cannot be empty");
+        break;
+      case !email.includes("@"):
+        setEmailError("Invalid email address");
+        break;
+      default:
+        break;
     }
 
-    if (!this.state.password) {
-      passwordError = "Password field cannot be empty";
-    } else if (this.state.password.length < 6) {
-      passwordError = "Password must be at least 6 characters long";
-    } else if (
-      !/[A-Za-z]/.test(this.state.password)
-      || !/\d/.test(this.state.password)
-    ) {
-      passwordError = "Password must contain at least one letter and one number";
+    switch (true) {
+      case !password:
+        setPasswordError("Password field cannot be empty");
+        break;
+      case password.length < 6:
+        setPasswordError("Password must be at least 6 characters long");
+        break;
+      case !/[A-Za-z]/.test(password) || !/\d/.test(password):
+        setPasswordError("Password must contain at least one letter and one number");
+        break;
+      default:
+        break;
     }
 
-    if (emailError || passwordError) {
-      this.setState({ emailError, passwordError });
-      return false;
-    }
+    setEmailError(emailError);
+    setPasswordError(passwordError);
 
-    this.setState({ emailError: "", passwordError: "" });
-    return true;
+    return !(emailError || passwordError);
   };
 
-  handleSubmit = (event) => {
+  const handleSubmit = (event) => {
     event.preventDefault();
 
-    const isValid = this.validateForm();
+    const isValid = validateForm();
+    const { updateUser } = props;
 
     if (isValid) {
-      // Perform login logic here
-      console.log("Login successful");
+      setLoading(true);
+
+      fetch(`${usersUrl}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user: { email, password } }),
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          throw response.text();
+        })
+        .then((data) => {
+          updateUser(data.user);
+          navigate("/feed");
+        })
+        .catch((errPromise) => {
+          const errorMessagePromise = errPromise.then((res) => res);
+
+          errorMessagePromise.then((errorMessage) => {
+            setOtherError(errorMessage || "An unexpected error occurred. Please try again later.");
+          });
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     }
   };
 
-  render() {
-    return (
-      <div className="login-container">
-        <h1 className="login-heading">Login</h1>
-        <form onSubmit={this.handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="email">Email</label>
-            <input
-              type="text"
-              name="email"
-              id="email"
-              placeholder="Enter your email"
-              value={this.state.email}
-              onChange={this.handleInputChange}
-              className="input-field"
-            />
-            <span className="error">{this.state.emailError}</span>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="Enter Password"
-              value={this.state.password}
-              onChange={this.handleInputChange}
-              className="input-field"
-            />
-            <span className="error">{this.state.passwordError}</span>
-          </div>
-
-          <button type="submit" className="btn-2">
-            Login
-          </button>
-        </form>
-
-        <p>
-          Don't have an account?
-          <Link to="/signup" className="accent"> Sign up</Link>
-        </p>
-      </div>
-    );
+  if (loading) {
+    return <Loader />;
   }
+
+  return (
+    <div className="login-container">
+      <h1 className="login-heading">Login</h1>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label htmlFor="email">Email</label>
+          <input
+            type="text"
+            name="email"
+            id="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={handleInputChange}
+            className="input-field"
+          />
+          <span className="error">{emailError}</span>
+          <span className="error">{otherError}</span>
+        </div>
+
+        <div className="form-group">
+          <label htmlFor="password">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="Enter Password"
+            value={password}
+            onChange={handleInputChange}
+            className="input-field"
+          />
+          <span className="error">{passwordError}</span>
+        </div>
+
+        <button type="submit" className="btn-2">
+          Login
+        </button>
+      </form>
+
+      <p>
+        Don't have an account?
+        <Link to="/signup" className="accent">
+          {" "}
+          Sign up
+        </Link>
+      </p>
+    </div>
+  );
 }
 
 export default LoginPage;
