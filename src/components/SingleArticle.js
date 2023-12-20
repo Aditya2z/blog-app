@@ -1,95 +1,133 @@
-import React, { useState, useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
-import { articleUrl } from "../utils/constant";
+import React, { useEffect } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
 import Loader from "./loader/Loader";
+import Like from "./Like";
+import { articleUrl, localStorageKey } from "../utils/constant";
 
 function SingleArticle(props) {
-  const [loading, setLoading] = useState(!props.article);
-  const [error, setError] = useState(null);
-  const [fetchedArticle, setFetchedArticle] = useState(null);
+  const {
+    currentArticle,
+    fetchArticles,
+    loading,
+    isLoggedIn,
+    user,
+    setError,
+  } = props;
+
   const { slug } = useParams();
+  const navigate = useNavigate();
+  const storageKey = localStorage.getItem(localStorageKey) || "";
+
+  const deleteArticle = () => {
+    const isAuthor = (user.username === currentArticle.author.username);
+
+    if (isLoggedIn && isAuthor) {
+      fetch(`${articleUrl}/${slug}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: storageKey,
+        },
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json();
+          }
+          throw response.text();
+        })
+        .then(() => {
+          navigate("/");
+        })
+        .catch((errorPromise) => {
+          errorPromise.then((errorText) => {
+            setError({ errorText });
+          });
+        });
+    } else {
+      navigate("/");
+    }
+  };
 
   useEffect(() => {
-    if (!props.article) {
-      fetch(`${articleUrl}/${slug}`)
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error("Failed to fetch article");
-          }
-          return res.json();
-        })
-        .then((data) => {
-          setFetchedArticle(data.article.article);
-          setLoading(false);
-        })
-        .catch((err) => {
-          setError(err);
-        });
-    }
-  }, [props.article]);
+    const fetchParams = `/${slug}`;
+
+    fetchArticles(fetchParams);
+  }, []);
 
   if (loading) {
     return <Loader />;
   }
 
-  if (error) {
-    return (
-      <div>
-        Error:
-        {error.message}
-      </div>
-    );
-  }
-
-  if (!props.article && !fetchedArticle) {
+  if (!currentArticle) {
     return <div>Article not found</div>;
   }
 
   const {
     title, body, taglist, createdAt, author,
-  } = props.article || fetchedArticle;
+  } = currentArticle;
+
+  let isAuthor = false;
+  if (isLoggedIn) {
+    isAuthor = (user.username === currentArticle.author.username);
+  }
 
   return (
-    <article className="single-article">
-      <section className="hero">
-        <h1>{title}</h1>
-        <div className="article-author flex justify-between align-center">
-          <div>
-            <Link to={`/profiles/${author.username}`} className="flex align-center user">
-              <div className="avatar">
-                <img
-                  src={author.image ? author.image : "/images/user-solid.svg"}
-                  alt={author.username}
-                />
+    <div className="single-article conatiner-90">
+      <article>
+        <section className="hero">
+          <h1>{title}</h1>
+          <div className="article-author flex justify-between align-center">
+            <div>
+              <Link
+                to={`/profiles/${author.username}`}
+                className="flex align-center user"
+              >
+                <div className="avatar">
+                  <img
+                    src={author.image ? author.image : "/images/user-solid.svg"}
+                    alt={author.username}
+                  />
+                </div>
+                <p className="author">{author.username}</p>
+              </Link>
+              <p className="date">{new Date(createdAt).toDateString()}</p>
+            </div>
+            {isLoggedIn && (
+              <div className="flex justify-between align-center flex-10">
+                <Like {...props} article={currentArticle} />
+                {isAuthor && (
+                  <>
+                    <Link to={`/articles/${slug}/edit`} className="edit-btn">Edit</Link>
+                    <Link to="/feed" className="delete-btn" onClick={deleteArticle}>Delete</Link>
+                  </>
+                )}
               </div>
-              <p className="author">{author.username}</p>
-            </Link>
-            <p className="date">{new Date(createdAt).toDateString()}</p>
+            )}
           </div>
+        </section>
+        <p className="article-body">{body}</p>
+        <div className="tag-list">
+          Tags:
+          {taglist.map((tag) => (
+            <span key={tag} className="tag btn-1">
+              {tag}
+            </span>
+          ))}
         </div>
-      </section>
-      <p className="article-body">{body}</p>
-      <div className="tag-list">
-        Tags:
-        {taglist.map((tag) => (
-          <span key={tag} className="tag btn-1">
-            {tag}
-          </span>
-        ))}
-      </div>
-      <p className="article-footer">
-        <Link to="/login" className="accent">
-          Sign in
-          {" "}
-        </Link>
-        or
-        <Link to="/signup" className="accent">
-          Sign Up
-          {" "}
-        </Link>
-        to add comments on this article.
-      </p>
-    </article>
+        {!isLoggedIn && (
+        <p className="article-footer">
+          <Link to="/login" className="accent">
+            Sign in
+          </Link>
+          &nbsp;or&nbsp;
+          <Link to="/signup" className="accent">
+            Sign Up
+          </Link>
+          &nbsp;to like this article.
+        </p>
+        )}
+      </article>
+    </div>
   );
 }
 
