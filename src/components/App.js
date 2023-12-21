@@ -35,7 +35,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [isVerifying, setIsVerifying] = useState(true);
 
-  const storageKey = localStorage.getItem(localStorageKey);
+  const storageKey = localStorage.getItem(localStorageKey) || "";
 
   const updateUser = (data = null) => {
     setIsLoggedIn(!isLoggedIn);
