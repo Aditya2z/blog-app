@@ -4,11 +4,7 @@ import "../styles/style.css";
 
 function Feedbar(props) {
   const {
-    currentTag,
-    setCurrentTag,
-    isLoggedIn,
-    customFeed,
-    setCurrentPage,
+    currentTag, setCurrentTag, isLoggedIn, customFeed, setCurrentPage,
   } = props;
 
   const { authorid } = useParams();
@@ -65,15 +61,17 @@ function Feedbar(props) {
             className={`author-feed ${favorited ? "" : "active"}`}
             tabIndex={0}
           >
-            My Articles
+            Published Articles
           </Link>
-          <Link
-            to={`/profiles/${authorid}/favorites`}
-            className={`author-feed ${favorited ? "active" : ""}`}
-            tabIndex={0}
-          >
-            Liked Articles
-          </Link>
+          {isLoggedIn && (
+            <Link
+              to={`/profiles/${authorid}/favorites`}
+              className={`author-feed ${favorited ? "active" : ""}`}
+              tabIndex={0}
+            >
+              Liked Articles
+            </Link>
+          )}
         </>
       )}
     </div>
